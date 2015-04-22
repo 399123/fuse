@@ -19,11 +19,12 @@ LFLAGS = -g -Wall -Wextra
 
 FUSE_EXAMPLES = fusehello fusexmp 
 XATTR_EXAMPLES = xattr-util
-OPENSSL_EXAMPLES = aes-crypt-util 
+OPENSSL_EXAMPLES = aes-crypt-util
+
 
 .PHONY: all fuse-examples xattr-examples openssl-examples clean
 
-all: fuse-examples xattr-examples openssl-examples
+all: fuse-examples xattr-examples openssl-examples assignment5
 
 fuse-examples: $(FUSE_EXAMPLES)
 xattr-examples: $(XATTR_EXAMPLES)
@@ -41,6 +42,9 @@ xattr-util: xattr-util.o
 aes-crypt-util: aes-crypt-util.o aes-crypt.o
 	$(CC) $(LFLAGS) $^ -o $@ $(LLIBSOPENSSL)
 
+assignment5: assignment5.o
+	$(CC) $(LFLAGS) $^ -o $@ $(LLIBSFUSE)
+
 fusehello.o: fusehello.c
 	$(CC) $(CFLAGS) $(CFLAGSFUSE) $<
 
@@ -56,10 +60,14 @@ aes-crypt-util.o: aes-crypt-util.c aes-crypt.h
 aes-crypt.o: aes-crypt.c aes-crypt.h
 	$(CC) $(CFLAGS) $<
 
+assignment5.o: assignment5.c
+	$(CC) $(CFLAGS) $<
+
 clean:
 	rm -f $(FUSE_EXAMPLES)
 	rm -f $(XATTR_EXAMPLES)
 	rm -f $(OPENSSL_EXAMPLES)
+	rm -f assignment5
 	rm -f *.o
 	rm -f *~
 	rm -f handout/*~

@@ -434,5 +434,7 @@ int main(int argc, char *argv[])
 	xmp_data->rootdir = realpath(argv[argc-1], NULL]);
 	argv[argc-2] = argv[argc-1];
 	argv[argc-1] = NULL;
+	--argc;
+	printf("%s\n", "Calling fuse_main");
 	return fuse_main(argc, argv, &xmp_oper, NULL);
 }
