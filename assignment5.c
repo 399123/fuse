@@ -37,6 +37,7 @@
 #include <fuse.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <dirent.h>
@@ -44,8 +45,14 @@
 #include <sys/time.h>
 #ifdef HAVE_SETXATTR
 #include <sys/xattr.h>
+#include <limits.h>
 #endif
 
+struct xmp_state{
+	char *rootdir;
+};
+
+#define XMP_DATA ((struct xmp_state *) fuse)
 static int xmp_getattr(const char *path, struct stat *stbuf)
 {
 	int res;
@@ -397,7 +404,7 @@ static struct fuse_operations xmp_oper = {
 	.read		= xmp_read,
 	.write		= xmp_write,
 	.statfs		= xmp_statfs,
-	.create         = xmp_create,
+	.create     = xmp_create,
 	.release	= xmp_release,
 	.fsync		= xmp_fsync,
 #ifdef HAVE_SETXATTR
@@ -408,8 +415,24 @@ static struct fuse_operations xmp_oper = {
 #endif
 };
 
+
 int main(int argc, char *argv[])
 {
 	umask(0);
+	struct xmp_state, *xmp_data;
+	if ((argc < 1) || (argv[argc-2][0] == '-')){
+		printf("%s\n", "No directory specified, closing.")
+		return 0;
+	}
+
+	xmp_data = malloc(sizeof(xmp_state));
+	if(xmp_data == NULL){
+		perror("main calloc");
+		return 0;
+	}
+
+	xmp_data->rootdir = realpath(argv[argc-1], NULL]);
+	argv[argc-2] = argv[argc-1];
+	argv[argc-1] = NULL;
 	return fuse_main(argc, argv, &xmp_oper, NULL);
 }

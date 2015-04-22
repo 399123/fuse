@@ -375,7 +375,8 @@ static int xmp_removexattr(const char *path, const char *name)
 		return -errno;
 	return 0;
 }
-#endif /* HAVE_SETXATTR */
+#endif 
+/* HAVE_SETXATTR */
 
 static struct fuse_operations xmp_oper = {
 	.getattr	= xmp_getattr,
@@ -397,7 +398,7 @@ static struct fuse_operations xmp_oper = {
 	.read		= xmp_read,
 	.write		= xmp_write,
 	.statfs		= xmp_statfs,
-	.create         = xmp_create,
+	.create     = xmp_create,
 	.release	= xmp_release,
 	.fsync		= xmp_fsync,
 #ifdef HAVE_SETXATTR
@@ -411,5 +412,11 @@ static struct fuse_operations xmp_oper = {
 int main(int argc, char *argv[])
 {
 	umask(0);
-	return fuse_main(argc, argv, &xmp_oper, NULL);
+	int nargc = argc - 1;
+	char *nargv[nargc];
+	for (int i = 0; i < nargc; ++i)
+	{
+		nargv[i] = argv[i];
+	}
+	return fuse_main(nargc, nargv, &xmp_oper, NULL);
 }
