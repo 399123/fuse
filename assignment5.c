@@ -418,9 +418,10 @@ static struct fuse_operations xmp_oper = {
 
 int main(int argc, char *argv[])
 {
+	int clear;
 	umask(0);
 	struct xmp_state, *xmp_data;
-	if ((argc < 1) || (argv[argc-2][0] == '-')){
+	if ((argc < 1) || (argv[argc-2][0] == '-') || (argv[argc-1][0] == '-')){
 		printf("%s\n", "No directory specified, closing.")
 		return 0;
 	}
@@ -431,10 +432,12 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-	xmp_data->rootdir = realpath(argv[argc-1], NULL]);
+	xmp_data->rootdir = realpath(argv[argc-2], NULL]);
 	argv[argc-2] = argv[argc-1];
 	argv[argc-1] = NULL;
 	--argc;
 	printf("%s\n", "Calling fuse_main");
-	return fuse_main(argc, argv, &xmp_oper, NULL);
+	clear = fuse_main(argc, argv, &xmp_oper, xmp_data);
+	free(xmp_data);
+	return clear;
 }
