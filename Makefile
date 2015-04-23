@@ -61,7 +61,7 @@ aes-crypt.o: aes-crypt.c aes-crypt.h
 	$(CC) $(CFLAGS) $<
 
 assignment5.o: assignment5.c
-	$(CC) $(CFLAGS) $<
+	$(CC) $(CFLAGS) -D_FILE_OFFSET_BITS=64 $<
 
 clean:
 	rm -f $(FUSE_EXAMPLES)

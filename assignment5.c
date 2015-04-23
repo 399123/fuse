@@ -420,19 +420,19 @@ int main(int argc, char *argv[])
 {
 	int clear;
 	umask(0);
-	struct xmp_state, *xmp_data;
+	struct xmp_state *xmp_data;
 	if ((argc < 1) || (argv[argc-2][0] == '-') || (argv[argc-1][0] == '-')){
-		printf("%s\n", "No directory specified, closing.")
+		printf("%s\n", "No directory specified, closing.");
 		return 0;
 	}
 
-	xmp_data = malloc(sizeof(xmp_state));
+	xmp_data = malloc(sizeof(xmp_data));
 	if(xmp_data == NULL){
 		perror("main calloc");
 		return 0;
 	}
 
-	xmp_data->rootdir = realpath(argv[argc-2], NULL]);
+	xmp_data->rootdir = realpath(argv[argc-2], NULL);
 	argv[argc-2] = argv[argc-1];
 	argv[argc-1] = NULL;
 	--argc;
