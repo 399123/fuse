@@ -268,7 +268,7 @@ static int xmp_getattr(const char *path, struct stat *stbuf)
 static int xmp_access(const char *path, int mask)
 {
 	int res;
-	const char* new_path = rewrite_path(path);
+	const char* new_path = rewritepath(path);
 	res = access(new_path , mask);
 	if (res == -1)
 		return -errno;
@@ -380,7 +380,7 @@ static int xmp_symlink(const char *from, const char *to)
 	char* new_to = rewritepath(to);
 	res = symlink(new_from, new_to);
 	free ((void*) new_from);
-	free ((void*new_to));
+	free ((void*) new_to);
 	if (res == -1)
 		return -errno;
 
@@ -395,7 +395,7 @@ static int xmp_rename(const char *from, const char *to)
 
 	res = rename(new_from, new_to);
 	free ((void*) new_from);
-	free ((void*new_to));
+	free ((void*) new_to);
 	if (res == -1)
 		return -errno;
 
@@ -410,7 +410,7 @@ static int xmp_link(const char *from, const char *to)
 
 	res = link(new_from, new_to);
 	free ((void*) new_from);
-	free ((void*new_to));
+	free ((void*) new_to);
 	if (res == -1)
 		return -errno;
 
@@ -478,7 +478,7 @@ static int xmp_utimens(const char *path, const struct timespec ts[2])
 static int xmp_open(const char *path, struct fuse_file_info *fi)
 {
 	int res;
-	char* new_path(new_path);
+	char* new_path = rewritepath(path);
 
 	res = open(new_path, fi->flags);
 	free((void*) new_path);
@@ -494,12 +494,12 @@ static int xmp_read(const char *path, char *buf, size_t size, off_t offset,
 {
 	int fd;
 	int res;
-	const char* new_path = rewrite_path(path);
+	const char* new_path = rewritepath(path);
     const char* tmp_name = tmp_path(new_path);
 
 	(void) fi;
 	dec_file_copy(path, tmp_name);
-	fd = open(tmp_name O_RDONLY);
+	fd = open(tmp_name, O_RDONLY);
 	if (fd == -1)
 		return -errno;
 
@@ -519,7 +519,7 @@ static int xmp_write(const char *path, const char *buf, size_t size,
 {
 	int fd;
 	int res;
-	const char* new_path = rewrite_path(path);
+	const char* new_path = rewritepath(path);
     dec_file(path);
 	(void) fi;
 	fd = open(new_path, O_WRONLY);
@@ -539,7 +539,7 @@ static int xmp_write(const char *path, const char *buf, size_t size,
 static int xmp_statfs(const char *path, struct statvfs *stbuf)
 {
 	int res;
-	const char* new_path = rewrite_path(path);
+	const char* new_path = rewritepath(path);
 
 	res = statvfs(new_path, stbuf);
 	free((void*)new_path);
@@ -553,7 +553,7 @@ static int xmp_create(const char* path, mode_t mode, struct fuse_file_info* fi) 
 
     (void) fi;
     int res;
-    const char* new_path = rewrite_path(path);
+    const char* new_path = rewritepath(path);
 
     res = creat(new_path, mode);
     fprintf(stderr, "Created file descriptor: %d\n", res);
@@ -596,7 +596,7 @@ static int xmp_fsync(const char *path, int isdatasync,
 static int xmp_setxattr(const char *path, const char *name, const char *value,
 			size_t size, int flags)
 {
-	const char* new_path = rewrite_path(path);
+	const char* new_path = rewritepath(path);
 	int res = lsetxattr(new_path, name, value, size, flags);
 	free((void*)new_path);
 	if (res == -1)
@@ -607,7 +607,7 @@ static int xmp_setxattr(const char *path, const char *name, const char *value,
 static int xmp_getxattr(const char *path, const char *name, char *value,
 			size_t size)
 {
-	const char* new_path = rewrite_path(path);
+	const char* new_path = rewritepath(path);
 	int res = lgetxattr(new_path, name, value, size);
 	free((void*)new_path);
 	if (res == -1)
@@ -617,7 +617,7 @@ static int xmp_getxattr(const char *path, const char *name, char *value,
 
 static int xmp_listxattr(const char *path, char *list, size_t size)
 {
-	const char* new_path = rewrite_path(path);
+	const char* new_path = rewritepath(path);
 	int res = llistxattr(new_path, list, size);
 	free((void*)new_path);
 	if (res == -1)
@@ -627,7 +627,7 @@ static int xmp_listxattr(const char *path, char *list, size_t size)
 
 static int xmp_removexattr(const char *path, const char *name)
 {
-	const char* new_path = rewrite_path(path);
+	const char* new_path = rewritepath(path);
 	int res = lremovexattr(new_path, name);
 	free((void*)new_path);
 	if (res == -1)
@@ -684,9 +684,11 @@ int main(int argc, char *argv[])
 	}
 
 	xmp_data->rootdir = realpath(argv[argc-2], NULL);
-	argv[argc-2] = argv[argc-1];
+	xmp_data->xmp_key = argv[argc-3];
+	argv[argc-3] = argv[argc-1];
+	argv[argc-2] = NULL;
 	argv[argc-1] = NULL;
-	--argc;
+	argc = argc-2;
 	printf("%s\n", "Calling fuse_main");
 	clear = fuse_main(argc, argv, &xmp_oper, xmp_data);
 	free(xmp_data->rootdir);
