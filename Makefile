@@ -42,7 +42,7 @@ xattr-util: xattr-util.o
 aes-crypt-util: aes-crypt-util.o aes-crypt.o
 	$(CC) $(LFLAGS) $^ -o $@ $(LLIBSOPENSSL)
 
-assignment5: assignment5.o
+assignment5: assignment5.o aes-crypt.o
 	$(CC) $(LFLAGS) $^ -o $@ $(LLIBSFUSE)
 
 fusehello.o: fusehello.c
